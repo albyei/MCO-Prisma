@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model produk {
+  id              Int               @id @default(autoincrement())
+  namaProduk      String            @default("")
+  Keterangan      String            @default("")
+  tarif           Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  detailTransaksi detailTransaksi[]
+}
+
+model transaksi {
+  idTransaksi     Int               @id @default(autoincrement())
+  stock           Int               @default(0)
+  tglTransaksi    DateTime?
+  tglBayar        DateTime?        
+  tglAkhir        DateTime?         
+  tglMulai        DateTime?        
+  statusBayar     String            @default("")
+  totalBayar      Int               @default(0)
+  idPelaggan      Int
+  createAt        DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  detailTransaksi detailTransaksi[]
+  pelanggan       User              @relation(fields: [idPelaggan], references: [idUser])
+}
+
+model detailTransaksi {
+  id_detail_transaksi Int       @id @default(autoincrement())
+  jumlahProduk        Int       @default(0)
+  harga               Int       @default(0)
+  idProduk            Int       @default(0)
+  idTrasnsaksi        Int       @default(0)
+  createAt            DateTime  @default(now())
+  updateAt            DateTime  @updatedAt
+  produk              produk    @relation(fields: [idProduk], references: [id])
+  transaksi           transaksi @relation(fields: [idTrasnsaksi], references: [idTransaksi])
+}
+
+model User {
+  idUser     Int         @id @default(autoincrement())
+  userName   String      @default("")
+  email      String      @unique @default("")
+  password   String      @default("")
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  userProfil userProfil?
+  alamat     alamat[]
+  transaksi  transaksi[]
+}
+
+model userProfil {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @default(0)
+  namaLengkap  String   @default("")
+  jenisKelamin String   @default("")
+  tanggalLahir Int      @default(0)
+  nomorHp      Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [id], references: [idUser])
+}
+
+model alamat {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @default(0)
+  alamat    String   @default("")
+  kodePos   Int      @default(0)
+  nomorHp   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [idUser])
+}
+
+model admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @default("")
+  email     String   @unique @default("")
+  password  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
